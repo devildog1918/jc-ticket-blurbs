@@ -1,0 +1,23 @@
+{
+  "name": "JC Blurb Library",
+  "short_name": "Blurb Library",
+  "description": "Search, manage, and copy TOPdesk blurbs from a local installable PWA.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#8b1e2d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
