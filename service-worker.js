@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jc-blurb-library-v1';
+const CACHE_NAME = 'jc-blurb-library-v2';
 const APP_ASSETS = [
   './',
   './index.html',
