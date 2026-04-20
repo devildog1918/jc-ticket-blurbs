@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RP Blurb Library</title>
+  <meta name="theme-color" content="#8b1e2d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="RP Blurb Library" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --accent: #8b1e2d;
+      --accent-dark: #6f1824;
+      --border: #d8dee4;
+      --shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr auto auto;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    input, textarea, select, button {
+      font: inherit;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #4b5563;
+    }
+
+    button.secondary:hover {
+      background: #374151;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .blurb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 70vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .blurb-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .blurb-item:hover,
+    .blurb-item.active {
+      border-color: var(--accent);
+      background: #fff7f8;
+    }
+
+    .blurb-name {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .blurb-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 10px 0;
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .detail-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .blurb-body {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      min-height: 280px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .small-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .controls,
+      .small-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="topbar">
+      <h1 class="title">JC Blurb Library</h1>
+      <p class="subtitle">Search blurbs by name, open them fast, and copy them into TOPdesk tickets.</p>
+
+      <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search blurb name or keyword..." />
+        <select id="categoryFilter">
+          <option value="all">All Categories</option>
+        </select>
+        <button id="newBlurbBtn">New Blurb</button>
+        <button id="exportBtn" class="secondary">Export JSON</button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <h2>Blurb List</h2>
+        <div id="blurbList" class="blurb-list"></div>
+      </div>
+
+      <div class="panel">
+        <div id="detailView">
+          <div class="empty">Select a blurb from the list or create a new one.</div>
+        </div>
+
+        <hr style="margin:18px 0; border:none; border-top:1px solid var(--border);">
+
+        <h2 id="formTitle">Add / Edit Blurb</h2>
+        <div class="form-grid">
+          <input type="hidden" id="blurbId" />
+          <input type="text" id="blurbName" placeholder="Blurb name" />
+          <div class="small-row">
+            <input type="text" id="blurbCategory" placeholder="Category (example: Cellular Devices)" />
+            <input type="text" id="blurbTags" placeholder="Tags (comma separated)" />
+          </div>
+          <textarea id="blurbText" placeholder="Paste the full blurb here..."></textarea>
+          <div class="detail-actions">
+            <button id="saveBtn">Save Blurb</button>
+            <button id="clearBtn" class="secondary">Clear Form</button>
+            <label for="importFile" style="display:inline-block;">
+              <span style="display:none;">Import</span>
+              <input type="file" id="importFile" accept="application/json" style="display:none;">
+              <button type="button" id="importBtn" class="secondary">Import JSON</button>
+            </label>
+          </div>
+          <div class="status" id="statusMsg"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'rp_blurb_library_v1';
+
+    const starterBlurbs = [
+      {
+        id: crypto.randomUUID(),
+        name: 'New Line Request Received',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'new line', 'request'],
+        text: '📱 NEW LINE REQUEST RECEIVED – Your request has been received and is under review. Required approval and eligibility will be verified before the order is submitted. You will be updated with the next step once review is complete. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Upgrade Request Received',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'upgrade', 'request'],
+        text: '📱 UPGRADE REQUEST RECEIVED – Your upgrade request has been received. Device eligibility is being reviewed. You will be notified once eligibility has been confirmed and the order is ready to be submitted. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Upgrade Eligible - Order Scheduled',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'upgrade eligible', 'order scheduled'],
+        text: '📱 UPGRADE ELIGIBLE – The device is eligible for upgrade. The order will be submitted on [DATE]. Once submitted, the ticket will be updated with the next step. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Order Approved',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'approved', 'verizon'],
+        text: '📱 ORDER APPROVED – The request has been approved and is ready for carrier submission. The order will now be submitted to Verizon and the ticket will be updated once shipment information is available. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Phone Order Submitted',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'order submitted', 'verizon'],
+        text: '📱 ORDER SUBMITTED – The device order has been submitted to Verizon. Shipment information is pending. The ticket will be updated once tracking or delivery details are available. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Phone Order Shipped',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'shipped', 'tracking'],
+        text: '📱 ORDER SHIPPED – The device order is in transit. Delivery is being monitored and the ticket will be updated once the device has been received. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Device Received / Processing',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'received', 'processing'],
+        text: '📱 DEVICE RECEIVED – The device has been received and is now being processed. Configuration, activation, and accessory preparation will be completed before the next step. You will be contacted once the device is ready. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Ready for Pickup / Appointment Required',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'pickup', 'appointment'],
+        text: '📱 READY FOR PICKUP – Your device is ready. Please reply with your availability to schedule a pickup appointment Monday through Thursday between 7:00 AM and 1:30 PM. If replacing an existing device, please ensure the old device is prepared for turnover before your appointment. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Appointment Confirmed',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'appointment confirmed', 'pickup'],
+        text: '📅 PICKUP APPOINTMENT CONFIRMED – Your pickup appointment has been confirmed for [DATE/TIME]. If you need to reschedule, please reply to this ticket. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Interoffice Delivery - Maintenance Flow',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'interoffice', 'maintenance'],
+        text: '📱🏢 INTEROFFICE DELIVERY – The device has been processed and sent through interoffice mail for department delivery. Please ensure the signed documentation and old device, if applicable, are returned to the Cellular Device Team. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Old Device Received',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'old device', 'return'],
+        text: '📦 OLD DEVICE RECEIVED – The previous device has been received and documented. It will now be processed for reset, reassignment, or recycling as appropriate. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Order Complete',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'complete', 'issued'],
+        text: '📱📡 DEVICE ORDER COMPLETE – The device has been issued, configured, and activated. The signed Device Assignment Agreement has been received and documented. For any future issues or requests related to this device, please submit a new ticket. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Suspend Line - Request Received',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'suspend', 'request'],
+        text: '⏸️ SUSPEND LINE REQUEST RECEIVED – Your request to suspend the cellular line has been received and is being processed. The ticket will be updated once the suspension has been completed. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Suspend Line - In Progress',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'suspend', 'in progress'],
+        text: '⏸️ SUSPEND LINE IN PROGRESS – The request to suspend the cellular line is currently being processed with the carrier. The ticket will be updated once the change has been completed. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Suspend Line - Completed',
+        category: 'Cellular Devices',
+        tags: ['cellular', 'suspend', 'completed'],
+        text: '⏸️ CELLULAR LINE SUSPENDED – The cellular line has been successfully suspended. Service can be reactivated through a new request when needed. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'New Hot Spot Request',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'new', 'request'],
+        text: '📡 NEW HOT SPOT REQUEST – Your request for a new hot spot has been received and is under review. You will be notified once approved and submitted. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Upgrade Hot Spot Request',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'upgrade', 'request'],
+        text: '📡 HOT SPOT UPGRADE REQUEST – Your upgrade request has been received. Eligibility is being reviewed. You will be notified when submitted. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Order Submitted',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'order submitted', 'vendor'],
+        text: '📡 HOT SPOT ORDER SUBMITTED – Order sent to vendor. Awaiting shipment confirmation. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Order Shipped',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'shipped', 'tracking'],
+        text: '📡 HOT SPOT ORDER SHIPPED – Your order is in transit. Delivery status will be updated. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Order Received',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'received', 'technology'],
+        text: '📡 HOT SPOT RECEIVED – Device received by Technology Department. Preparing for pickup. You will be contacted to schedule. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Ready for Pickup',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'pickup', 'appointment'],
+        text: '📡 HOT SPOT READY FOR PICKUP – Please schedule an appointment to pick up your device at the ESC Help Desk. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Appointment Confirmed',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'appointment confirmed', 'pickup'],
+        text: '📡 PICKUP APPOINTMENT CONFIRMED – Your appointment is confirmed. Please arrive at the scheduled time. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Student Hot Spot Activation',
+        category: 'Hot Spots',
+        tags: ['student', 'hot spot', 'activation'],
+        text: '📶 STUDENT HOT SPOT ACTIVATION – The hot spot has been activated for student use. The device is ready for deployment based on campus or department distribution procedures. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Student Hot Spot Transferred to Campus',
+        category: 'Hot Spots',
+        tags: ['student', 'hot spot', 'campus transfer'],
+        text: '📶🏢 STUDENT HOT SPOT TRANSFERRED TO CAMPUS – The activated hot spot has been sent through interoffice mail to the campus for distribution. Please coordinate final checkout and user assignment at the campus level. Thank you.'
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hot Spot Order Complete',
+        category: 'Hot Spots',
+        tags: ['hot spot', 'complete', 'issued'],
+        text: '📱📡 DEVICE ORDER COMPLETE – Device successfully issued; assignment agreement received and documented. Contact support for issues. Thank you.'
+      }
+    ];
+
+    let blurbs = loadBlurbs();
+    let selectedId = null;
+
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const blurbList = document.getElementById('blurbList');
+    const detailView = document.getElementById('detailView');
+    const statusMsg = document.getElementById('statusMsg');
+
+    const blurbId = document.getElementById('blurbId');
+    const blurbName = document.getElementById('blurbName');
+    const blurbCategory = document.getElementById('blurbCategory');
+    const blurbTags = document.getElementById('blurbTags');
+    const blurbText = document.getElementById('blurbText');
+
+    function loadBlurbs() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(starterBlurbs));
+        return starterBlurbs;
+      }
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return starterBlurbs;
+      }
+    }
+
+    function saveBlurbs() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(blurbs));
+      refreshCategoryFilter();
+      renderList();
+    }
+
+    function showStatus(message) {
+      statusMsg.textContent = message;
+      setTimeout(() => {
+        if (statusMsg.textContent === message) statusMsg.textContent = '';
+      }, 2500);
+    }
+
+    function refreshCategoryFilter() {
+      const current = categoryFilter.value;
+      const categories = [...new Set(blurbs.map(b => (b.category || '').trim()).filter(Boolean))].sort();
+      categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categoryFilter.appendChild(option);
+      });
+      if ([...categoryFilter.options].some(o => o.value === current)) {
+        categoryFilter.value = current;
+      }
+    }
+
+    function getFilteredBlurbs() {
+      const search = searchInput.value.trim().toLowerCase();
+      const category = categoryFilter.value;
+
+      return blurbs
+        .filter(b => {
+          const matchesCategory = category === 'all' || b.category === category;
+          const haystack = [b.name, b.category, (b.tags || []).join(' '), b.text].join(' ').toLowerCase();
+          const matchesSearch = !search || haystack.includes(search);
+          return matchesCategory && matchesSearch;
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function renderList() {
+      const items = getFilteredBlurbs();
+      blurbList.innerHTML = '';
+
+      if (!items.length) {
+        blurbList.innerHTML = '<div class="empty">No blurbs found.</div>';
+        if (selectedId && !blurbs.find(b => b.id === selectedId)) {
+          selectedId = null;
+          renderDetail();
+        }
+        return;
+      }
+
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'blurb-item' + (item.id === selectedId ? ' active' : '');
+        div.innerHTML = `
+          <div class="blurb-name">${escapeHtml(item.name)}</div>
+          <div class="blurb-meta">${escapeHtml(item.category || 'Uncategorized')} • ${(item.tags || []).join(', ') || 'No tags'}</div>
+        `;
+        div.addEventListener('click', () => {
+          selectedId = item.id;
+          renderList();
+          renderDetail();
+          fillForm(item);
+        });
+        blurbList.appendChild(div);
+      });
+    }
+
+    function renderDetail() {
+      const item = blurbs.find(b => b.id === selectedId);
+      if (!item) {
+        detailView.innerHTML = '<div class="empty">Select a blurb from the list or create a new one.</div>';
+        return;
+      }
+
+      detailView.innerHTML = `
+        <div class="detail-header">
+          <div>
+            <h3 class="detail-title">${escapeHtml(item.name)}</h3>
+            <div class="blurb-meta">${escapeHtml(item.category || 'Uncategorized')} • ${(item.tags || []).join(', ') || 'No tags'}</div>
+          </div>
+          <div class="detail-actions">
+            <button id="copyBtn">Copy Blurb</button>
+            <button id="deleteBtn" class="secondary">Delete</button>
+          </div>
+        </div>
+        <div class="blurb-body">${escapeHtml(item.text)}</div>
+      `;
+
+      document.getElementById('copyBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(item.text);
+          showStatus('Blurb copied to clipboard.');
+        } catch {
+          showStatus('Copy failed.');
+        }
+      });
+
+      document.getElementById('deleteBtn').addEventListener('click', () => {
+        blurbs = blurbs.filter(b => b.id !== item.id);
+        selectedId = null;
+        saveBlurbs();
+        renderDetail();
+        clearForm();
+        showStatus('Blurb deleted.');
+      });
+    }
+
+    function fillForm(item) {
+      blurbId.value = item.id;
+      blurbName.value = item.name || '';
+      blurbCategory.value = item.category || '';
+      blurbTags.value = (item.tags || []).join(', ');
+      blurbText.value = item.text || '';
+      document.getElementById('formTitle').textContent = 'Edit Blurb';
+    }
+
+    function clearForm() {
+      blurbId.value = '';
+      blurbName.value = '';
+      blurbCategory.value = '';
+      blurbTags.value = '';
+      blurbText.value = '';
+      document.getElementById('formTitle').textContent = 'Add / Edit Blurb';
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const name = blurbName.value.trim();
+      const category = blurbCategory.value.trim();
+      const text = blurbText.value.trim();
+      const tags = blurbTags.value.split(',').map(t => t.trim()).filter(Boolean);
+
+      if (!name || !text) {
+        showStatus('Blurb name and text are required.');
+        return;
+      }
+
+      const existingId = blurbId.value;
+      if (existingId) {
+        const index = blurbs.findIndex(b => b.id === existingId);
+        if (index !== -1) {
+          blurbs[index] = { ...blurbs[index], name, category, tags, text };
+          selectedId = existingId;
+        }
+        showStatus('Blurb updated.');
+      } else {
+        const newBlurb = { id: crypto.randomUUID(), name, category, tags, text };
+        blurbs.push(newBlurb);
+        selectedId = newBlurb.id;
+        showStatus('Blurb saved.');
+      }
+
+      saveBlurbs();
+      renderDetail();
+      fillForm(blurbs.find(b => b.id === selectedId));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', clearForm);
+
+    document.getElementById('newBlurbBtn').addEventListener('click', () => {
+      selectedId = null;
+      renderList();
+      renderDetail();
+      clearForm();
+      blurbName.focus();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const data = JSON.stringify(blurbs, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rp-blurb-library.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus('Blurbs exported.');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        if (!Array.isArray(imported)) throw new Error('Invalid format');
+
+        blurbs = imported.map(item => ({
+          id: item.id || crypto.randomUUID(),
+          name: item.name || 'Untitled Blurb',
+          category: item.category || '',
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          text: item.text || ''
+        }));
+
+        selectedId = null;
+        saveBlurbs();
+        renderDetail();
+        clearForm();
+        showStatus('Blurbs imported.');
+      } catch {
+        showStatus('Import failed. Use a valid JSON file.');
+      }
+      event.target.value = '';
+    });
+
+    searchInput.addEventListener('input', renderList);
+    categoryFilter.addEventListener('change', renderList);
+
+    refreshCategoryFilter();
+    renderList();
+    renderDetail();
+  
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch((error) => {
+          console.error('Service worker registration failed:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
